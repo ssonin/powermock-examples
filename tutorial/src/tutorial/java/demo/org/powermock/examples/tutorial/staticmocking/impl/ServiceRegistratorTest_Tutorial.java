@@ -22,7 +22,6 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 import static org.powermock.api.mockito.PowerMockito.when;
@@ -34,7 +33,9 @@ import java.util.Map;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
@@ -56,6 +57,9 @@ import demo.org.powermock.examples.tutorial.staticmocking.osgi.ServiceRegistrati
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(IdGenerator.class)
 public class ServiceRegistratorTest_Tutorial {
+
+	@Rule
+	public ExpectedException thrown = ExpectedException.none();
 
 	private BundleContext bundleContextMock;
 	private ServiceRegistration serviceRegistrationMock;
@@ -139,11 +143,11 @@ public class ServiceRegistratorTest_Tutorial {
 	 */
 	@Test
 	public void testUnregisterService_idDoesntExist() throws Exception {
-		// TODO Create a new HashMap of ServiceRegistration's and set it to the serviceRegistrations field in the tested instance 
-		// TODO Expect the call to serviceRegistrationMock.unregister() and throw an IllegalStateException
-		// TODO Replay all mock objects used
-		// TODO Perform the actual test and assert that the result matches the expectations
-		// TODO Verify all mock objects used
-		// TODO Assert that the serviceRegistrations map in the test instance has not been updated
+		long id = 0L;
+		this.thrown.expect(IllegalStateException.class);
+		this.thrown.expectMessage("Registration with id " + id + " has already been removed or has never been registered");
+		setInternalState(this.tested, new HashMap<>());
+
+		this.tested.unregisterService(id);
 	}
 }
