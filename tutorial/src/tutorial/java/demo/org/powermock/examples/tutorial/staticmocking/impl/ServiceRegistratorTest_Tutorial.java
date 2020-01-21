@@ -18,12 +18,16 @@ package demo.org.powermock.examples.tutorial.staticmocking.impl;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 import static org.powermock.api.mockito.PowerMockito.when;
 import static org.powermock.reflect.Whitebox.getInternalState;
 import static org.powermock.reflect.Whitebox.setInternalState;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.After;
@@ -112,13 +116,17 @@ public class ServiceRegistratorTest_Tutorial {
 	 */
 	@Test
 	public void testUnregisterService() throws Exception {
-		// TODO Create a new HashMap of ServiceRegistration's and add a new ServiceRegistration to the map.
-		// TODO Set the new HashMap to the serviceRegistrations field in the tested instance 
-		// TODO Expect the call to serviceRegistrationMock.unregister()
-		// TODO Replay all mock objects used
-		// TODO Perform the actual test and assert that the result matches the expectations
-		// TODO Verify all mock objects used
-		// TODO Assert that the serviceRegistrations map in the test instance has been updated correctly
+		// given
+		Map<Long, ServiceRegistration> serviceRegistrations = new HashMap<>();
+		serviceRegistrations.put(42L, this.serviceRegistrationMock);
+		setInternalState(this.tested, serviceRegistrations);
+
+		// when
+		this.tested.unregisterService(42L);
+
+		// then
+		verify(this.serviceRegistrationMock, times(1)).unregister();
+		assertTrue(serviceRegistrations.isEmpty());
 	}
 
 	/**
