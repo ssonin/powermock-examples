@@ -15,11 +15,26 @@
  */
 package demo.org.powermock.examples.tutorial.staticmocking.impl;
 
-import demo.org.powermock.examples.tutorial.staticmocking.osgi.BundleContext;
-import demo.org.powermock.examples.tutorial.staticmocking.osgi.ServiceRegistration;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.powermock.api.mockito.PowerMockito.mockStatic;
+import static org.powermock.api.mockito.PowerMockito.when;
+import static org.powermock.reflect.Whitebox.getInternalState;
+import static org.powermock.reflect.Whitebox.setInternalState;
+
+import java.util.Map;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
+
+import demo.org.powermock.examples.tutorial.staticmocking.osgi.BundleContext;
+import demo.org.powermock.examples.tutorial.staticmocking.osgi.ServiceRegistration;
 
 /**
  * The purpose of this test is to get 100% coverage of the
@@ -32,6 +47,8 @@ import org.junit.Test;
  */
 // TODO Specify the PowerMock runner
 // TODO Specify which classes that must be prepared for test
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(IdGenerator.class)
 public class ServiceRegistratorTest_Tutorial {
 
 	private BundleContext bundleContextMock;
@@ -41,13 +58,24 @@ public class ServiceRegistratorTest_Tutorial {
 	@Before
 	public void setUp() {
 		// TODO Create a mock object of the BundleContext and ServiceRegistration classes
-		// TODO Create a new instance of SampleServiceImpl and pass in the created mock objects to the constructor
+		this.bundleContextMock = mock(BundleContext.class);
+		this.serviceRegistrationMock = mock(ServiceRegistration.class);
+		this.tested = new ServiceRegistrator();
+		setInternalState(this.tested, this.bundleContextMock);
+
 		// TODO Prepare the IdGenerator for static mocking
+		mockStatic(IdGenerator.class);
+
+		// TODO Create a new instance of SampleServiceImpl and pass in the created mock objects to the constructor
+
 	}
 
 	@After
 	public void tearDown() {		
 		// TODO Set all references to null
+		this.bundleContextMock = null;
+		this.serviceRegistrationMock = null;
+		this.tested = null;
 	}
 
 	/**
@@ -59,13 +87,21 @@ public class ServiceRegistratorTest_Tutorial {
 	 */
 	@Test
 	public void testRegisterService() throws Exception {
-		// TODO Set the bundle context mock to the correct field in the tested instance
-		// TODO Expect the call to bundleContextMock.registerService(..) and return a mock
-		// TODO Expect the static method call to IdGenerator.generateNewId() and return a known id
-		// TODO Replay all mock objects used and the class containing the static method
-		// TODO Perform the actual test and assert that the result matches the expectations
-		// TODO Verify all mock objects used and the class containing the static method
-		// TODO Assert that the serviceRegistrations map in the test instance has been updated correctly
+		// given
+		String name = "Focker";
+		Object serviceImpl = new Object();
+		long expectedId = 42L;
+		when(this.bundleContextMock.registerService(name, serviceImpl, null)).thenReturn(this.serviceRegistrationMock);
+		when(IdGenerator.generateNewId()).thenReturn(expectedId);
+
+		// when
+		long actualId = this.tested.registerService(name, serviceImpl);
+
+		// then
+		Map<Long, ServiceRegistration> serviceRegistrations = getInternalState(this.tested, Map.class);
+		assertThat(actualId, equalTo(expectedId));
+		assertThat(serviceRegistrations.get(expectedId), is(this.serviceRegistrationMock));
+		assertThat(serviceRegistrations.size(), equalTo(1));
 	}
 
 	/**
