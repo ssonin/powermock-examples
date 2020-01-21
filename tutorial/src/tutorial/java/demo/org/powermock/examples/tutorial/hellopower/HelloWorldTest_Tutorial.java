@@ -15,7 +15,16 @@
  */
 package demo.org.powermock.examples.tutorial.hellopower;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.powermock.api.mockito.PowerMockito.mockStatic;
+import static org.powermock.api.mockito.PowerMockito.when;
+
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 /**
  * The purpose of this test is to get 100% coverage of the {@link HelloWorld}
@@ -25,15 +34,16 @@ import org.junit.Test;
  * While doing this tutorial please refer to the documentation on how to mock
  * static methods at the PowerMock web site.
  */
-// TODO Specify the PowerMock runner
-// TODO Specify which classes that must be prepared for test
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(SimpleConfig.class)
 public class HelloWorldTest_Tutorial {
 
 	@Test
 	public void testGreeting() {
-		// TODO: mock the static methods of SimpleConfig
-		// TODO: Replay the behavior
-		// TODO: Perform the test of the greet method and assert that it returns the expected behavior
-		// TODO: Verify the behavior
+		mockStatic(SimpleConfig.class);
+		when(SimpleConfig.getGreeting()).thenReturn("fuk u");
+		when(SimpleConfig.getTarget()).thenReturn("dependency hell");
+
+		assertThat(new HelloWorld().greet(), is(equalTo("fuk u dependency hell")));
 	}
 }
