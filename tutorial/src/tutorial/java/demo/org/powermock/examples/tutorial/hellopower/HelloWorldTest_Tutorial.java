@@ -44,6 +44,6 @@ public class HelloWorldTest_Tutorial {
 		when(SimpleConfig.getGreeting()).thenReturn("fuk u");
 		when(SimpleConfig.getTarget()).thenReturn("dependency hell");
 
-		assertThat(new HelloWorld().greet(), is(equalTo("fuk u dependency hell")));
+		assertThat(new HelloWorld().greet(), equalTo("fuk u dependency hell"));
 	}
 }

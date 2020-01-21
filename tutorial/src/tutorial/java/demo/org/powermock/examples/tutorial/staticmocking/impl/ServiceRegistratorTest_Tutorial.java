@@ -19,6 +19,8 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -93,13 +95,12 @@ public class ServiceRegistratorTest_Tutorial {
 	public void testRegisterService() throws Exception {
 		// given
 		String name = "Focker";
-		Object serviceImpl = new Object();
 		long expectedId = 42L;
-		when(this.bundleContextMock.registerService(name, serviceImpl, null)).thenReturn(this.serviceRegistrationMock);
+		when(this.bundleContextMock.registerService(eq(name), any(), any())).thenReturn(this.serviceRegistrationMock);
 		when(IdGenerator.generateNewId()).thenReturn(expectedId);
 
 		// when
-		long actualId = this.tested.registerService(name, serviceImpl);
+		long actualId = this.tested.registerService(name, new Object());
 
 		// then
 		Map<Long, ServiceRegistration> serviceRegistrations = getInternalState(this.tested, Map.class);
@@ -125,7 +126,7 @@ public class ServiceRegistratorTest_Tutorial {
 		this.tested.unregisterService(42L);
 
 		// then
-		verify(this.serviceRegistrationMock, times(1)).unregister();
+		verify(this.serviceRegistrationMock).unregister();
 		assertTrue(serviceRegistrations.isEmpty());
 	}
 
