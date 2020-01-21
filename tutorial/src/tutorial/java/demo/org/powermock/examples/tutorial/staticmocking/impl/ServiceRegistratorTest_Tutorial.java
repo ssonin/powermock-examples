@@ -52,8 +52,6 @@ import demo.org.powermock.examples.tutorial.staticmocking.osgi.ServiceRegistrati
  * While doing this tutorial please refer to the documentation on how to mock
  * static methods and bypass encapsulation at the PowerMock web site.
  */
-// TODO Specify the PowerMock runner
-// TODO Specify which classes that must be prepared for test
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(IdGenerator.class)
 public class ServiceRegistratorTest_Tutorial {
@@ -67,22 +65,15 @@ public class ServiceRegistratorTest_Tutorial {
 
 	@Before
 	public void setUp() {
-		// TODO Create a mock object of the BundleContext and ServiceRegistration classes
 		this.bundleContextMock = mock(BundleContext.class);
 		this.serviceRegistrationMock = mock(ServiceRegistration.class);
 		this.tested = new ServiceRegistrator();
 		setInternalState(this.tested, this.bundleContextMock);
-
-		// TODO Prepare the IdGenerator for static mocking
 		mockStatic(IdGenerator.class);
-
-		// TODO Create a new instance of SampleServiceImpl and pass in the created mock objects to the constructor
-
 	}
 
 	@After
-	public void tearDown() {		
-		// TODO Set all references to null
+	public void tearDown() {
 		this.bundleContextMock = null;
 		this.serviceRegistrationMock = null;
 		this.tested = null;
