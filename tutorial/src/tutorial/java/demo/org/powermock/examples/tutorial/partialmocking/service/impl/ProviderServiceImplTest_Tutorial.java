@@ -15,12 +15,18 @@
  */
 package demo.org.powermock.examples.tutorial.partialmocking.service.impl;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.hasItem;
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.sameInstance;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.powermock.api.mockito.PowerMockito.doReturn;
 import static org.powermock.api.mockito.PowerMockito.spy;
 import static org.powermock.api.mockito.PowerMockito.verifyPrivate;
+import static org.powermock.api.mockito.PowerMockito.when;
+import static org.powermock.reflect.Whitebox.invokeMethod;
 import static org.powermock.reflect.Whitebox.setInternalState;
 
 import java.util.Collections;
@@ -35,6 +41,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import demo.org.powermock.examples.tutorial.partialmocking.dao.ProviderDao;
+import demo.org.powermock.examples.tutorial.partialmocking.dao.domain.impl.ServiceArtifact;
 import demo.org.powermock.examples.tutorial.partialmocking.domain.ServiceProducer;
 
 /**
@@ -116,27 +123,43 @@ public class ProviderServiceImplTest_Tutorial {
 
 	@Test
 	public void testServiceProvider_notFound() throws Exception {
-		// TODO Create a partial mock of the ProviderServiceImpl mocking only the getAllServiceProducers method
-		// TODO Expect the private method call to getAllServiceProducers and return null
-		// TODO Replay all mock objects used
-		// TODO Perform the actual test and assert that the result matches the expectations 
-		// TODO Verify all mock objects used 
+		// given
+		this.tested = spy(new ProviderServiceImpl());
+		doReturn(Collections.emptySet()).when(this.tested, "getAllServiceProducers");
+
+		// when
+		ServiceProducer actualProducer = this.tested.getServiceProvider(42);
+
+		// then
+		assertThat(actualProducer, is(equalTo(null)));
 	}
 
 	@Test
 	public void getAllServiceProducers() throws Exception {
-		// TODO Create a new ServiceArtifact and a new HashSet place the created ServiceArtifact in this set
-		// TODO Expect the call to the providerDao.getAllServiceProducers(..) and return the HashSet
-		// TODO Replay all mock objects used
-		// TODO Perform the actual test by invoking the private "getAllServiceProducers" method. Assert that the result matches the expectations.
-		// TODO Verify all mock objects used
+		// given
+		int expectedId = 42;
+		String expectedName = "name";
+		Set<ServiceArtifact> artifacts = new HashSet<>();
+		artifacts.add(new ServiceArtifact(expectedId, expectedName));
+		when(this.providerDaoMock.getAllServiceProducers()).thenReturn(artifacts);
+
+		// when
+		Set<ServiceProducer> producers = invokeMethod(this.tested, "getAllServiceProducers");
+
+		// then
+		assertThat(producers, hasItem(new ServiceProducer(expectedId, expectedName)));
+		assertThat(producers.size(), is(1));
 	}
 
 	@Test
 	public void getAllServiceProducers_empty() throws Exception {
-		// TODO Create a new HashSet of ServiceArtifacts
-		// TODO Replay all mock objects used
-		// TODO Perform the actual test by invoking the private "getAllServiceProducers" method. Assert that the result matches the expectations.
-		// TODO Verify all mock objects used
+		// given
+		when(this.providerDaoMock.getAllServiceProducers()).thenReturn(Collections.emptySet());
+
+		// when
+		Set<ServiceProducer> producers = invokeMethod(this.tested, "getAllServiceProducers");
+
+		// then
+		assertTrue(producers.isEmpty());
 	}
 }
