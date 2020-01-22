@@ -98,7 +98,7 @@ public class ServiceRegistratorTest_Tutorial {
 		long actualId = this.tested.registerService(name, new Object());
 
 		// then
-		Map<Long, ServiceRegistration> serviceRegistrations = getInternalState(this.tested, Map.class);
+		Map<Long, ServiceRegistration> serviceRegistrations = getInternalState(this.tested, "serviceRegistrations");
 		assertThat(actualId, equalTo(expectedId));
 		assertThat(serviceRegistrations.get(expectedId), is(this.serviceRegistrationMock));
 		assertThat(serviceRegistrations.size(), equalTo(1));
