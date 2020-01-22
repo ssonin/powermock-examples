@@ -15,12 +15,26 @@
  */
 package demo.org.powermock.examples.tutorial.domainmocking.impl;
 
-import demo.org.powermock.examples.tutorial.domainmocking.EventService;
-import demo.org.powermock.examples.tutorial.domainmocking.PersonService;
-import demo.org.powermock.examples.tutorial.domainmocking.domain.SampleServiceException;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.withSettings;
+import static org.powermock.api.mockito.PowerMockito.mock;
+import static org.powermock.api.mockito.PowerMockito.when;
+import static org.powermock.api.mockito.PowerMockito.whenNew;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
+
+import demo.org.powermock.examples.tutorial.domainmocking.EventService;
+import demo.org.powermock.examples.tutorial.domainmocking.PersonService;
+import demo.org.powermock.examples.tutorial.domainmocking.domain.BusinessMessages;
+import demo.org.powermock.examples.tutorial.domainmocking.domain.Person;
+import demo.org.powermock.examples.tutorial.domainmocking.domain.SampleServiceException;
 
 /**
  * The purpose of this test is to get 100% coverage of the
@@ -30,53 +44,64 @@ import org.junit.Test;
  * While doing this tutorial please refer to the documentation on how to mock
  * construction of new objects at the PowerMock web site.
  */
-// TODO Specify the PowerMock runner
-// TODO Specify which classes that must be prepared for test
+@RunWith(PowerMockRunner.class)
+@PrepareForTest({ SampleServiceImpl.class, BusinessMessages.class, Person.class })
 public class SampleServiceImplTest_Tutorial {
 
 	private SampleServiceImpl tested;
 	private PersonService personServiceMock;
-	private EventService eventService;
+	private EventService eventServiceMock;
 
 	@Before
 	public void setUp() {
-		// TODO Create a mock object of the PersonService and Event service class
-		// TODO Create a new instance of SampleServiceImpl and pass in the created mock objects to the constructor
+		this.personServiceMock = mock(PersonService.class);
+		this.eventServiceMock = mock(EventService.class);
+		this.tested = new SampleServiceImpl(this.personServiceMock, this.eventServiceMock);
 	}
 
 	@After
 	public void tearDown() {
-		// TODO Set all references to null or use the FieldDefaulter test listener
+		this.personServiceMock = null;
+		this.eventServiceMock = null;
+		this.tested = null;
 	}
 
 	@Test
 	public void testCreatePerson() throws Exception {
-        // TODO	Create a mock object of the BusinessMessages class and mock the a construction of "new BusinessMessages" and instead return the mock
-		// TODO Create a mock object of the Person class and mock the a construction of "new Person" and instead return the mock
-		// TODO Expect the call to personService.createPerson(..)
-		// TODO Expect the call to businessMessages.hasErrors(..) and make it return false
-		// TODO Replay all mock objects used and also replay the classes whose constructions were mocked
-		// TODO Perform the actual test and assert that the result is false
-		// TODO Verify all mock objects used and also verify the classes whose constructions were mocked
+		// given
+		BusinessMessages messages = mock(BusinessMessages.class);
+		Person person = mock(Person.class, withSettings().useConstructor("first name", "last name"));
+		whenNew(BusinessMessages.class).withNoArguments().thenReturn(messages);
+		whenNew(Person.class).withArguments("first name", "last name").thenReturn(person);
+		when(messages.hasErrors()).thenReturn(false);
+
+		// when
+		boolean expected = this.tested.createPerson("first name", "last name");
+
+		// then
+		assertTrue(expected);
 	}
 
 	@Test
 	public void testCreatePerson_error() throws Exception {
-		// TODO	Create a mock object of the BusinessMessages class and mock the a construction of "new BusinessMessages" and instead return the mock
-		// TODO Create a mock object of the Person class and mock the a construction of "new Person" and instead return the mock
-		// TODO Expect the call to personService.createPerson(..)
-		// TODO Expect the call to businessMessages.hasErrors(..) and make it return true
-		// TODO Expect the all to eventService.sendErrorEvent(..)
-		// TODO Replay all mock objects used and also replay the classes whose constructions were mocked
-		// TODO Perform the actual test and assert that the result is false
-		// TODO Verify all mock objects used and also verify the classes whose constructions were mocked
+		// given
+		BusinessMessages messages = mock(BusinessMessages.class);
+		Person person = mock(Person.class, withSettings().useConstructor("first name", "last name"));
+		whenNew(BusinessMessages.class).withNoArguments().thenReturn(messages);
+		whenNew(Person.class).withArguments("first name", "last name").thenReturn(person);
+		when(messages.hasErrors()).thenReturn(true);
+
+		// when
+		boolean expected = this.tested.createPerson("first name", "last name");
+
+		// given
+		assertFalse(expected);
+		verify(this.eventServiceMock).sendErrorEvent(person, messages);
 	}
 
 	@Test(expected = SampleServiceException.class)
 	public void testCreatePerson_illegalName() throws Exception {
-		// TODO Create a mock object of the Person class and mock the a construction of "new Person" but instead throw an IllegalArgumentException
-		// TODO Replay all mock objects used and also replay the classes whose constructions were mocked
-		// TODO Perform the actual test and assert that the result is false
-		// TODO Verify all mock objects used and also verify the classes whose constructions were mocked
+		whenNew(Person.class).withAnyArguments().thenThrow(new IllegalArgumentException());
+		this.tested.createPerson("first name", "last name");
 	}
 }
