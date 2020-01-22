@@ -23,6 +23,7 @@ import static org.powermock.api.mockito.PowerMockito.spy;
 import static org.powermock.api.mockito.PowerMockito.verifyPrivate;
 import static org.powermock.reflect.Whitebox.setInternalState;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -69,9 +70,9 @@ public class ProviderServiceImplTest_Tutorial {
 	@Test
 	public void testGetAllServiceProviders() throws Exception {
 		// given
+		this.tested = spy(new ProviderServiceImpl());
 		Set<ServiceProducer> expectedProducers = new HashSet<>();
 		expectedProducers.add(new ServiceProducer(42, "some name"));
-		this.tested = spy(new ProviderServiceImpl());
 		doReturn(expectedProducers).when(this.tested, "getAllServiceProducers");
 
 		// when
@@ -84,11 +85,16 @@ public class ProviderServiceImplTest_Tutorial {
 
 	@Test
 	public void testGetAllServiceProviders_noServiceProvidersFound() throws Exception {
-		// TODO Create a partial mock of the ProviderServiceImpl mocking only the getAllServiceProducers method
-		// TODO Expect the private method call to getAllServiceProducers and return null
-		// TODO Replay all mock objects used
-		// TODO Perform the actual test and assert that the result matches the expectations 
-		// TODO Verify all mock objects used 
+		// given
+		this.tested = spy(new ProviderServiceImpl());
+		doReturn(Collections.emptySet()).when(this.tested, "getAllServiceProducers");
+
+		// when
+		Set<ServiceProducer> actualProducers = this.tested.getAllServiceProviders();
+
+		// then
+		verifyPrivate(this.tested).invoke("getAllServiceProducers");
+		assertThat(actualProducers, sameInstance(Collections.emptySet()));
 	}
 
 	@Test
