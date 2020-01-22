@@ -99,12 +99,19 @@ public class ProviderServiceImplTest_Tutorial {
 
 	@Test
 	public void testServiceProvider_found() throws Exception {
-		// TODO Create a partial mock of the ProviderServiceImpl mocking only the getAllServiceProducers method
-		// TODO Create a new HashSet of ServiceProducer's and add a ServiceProducer to the set
-		// TODO Expect the private method call to getAllServiceProducers and return the created HashSet
-		// TODO Replay all mock objects used
-		// TODO Perform the actual test and assert that the result matches the expectations  
-		// TODO Verify all mock objects used
+        // given
+        this.tested = spy(new ProviderServiceImpl());
+        Set<ServiceProducer> producers = new HashSet<>();
+        ServiceProducer expectedProducer = new ServiceProducer(42, "some name");
+        producers.add(expectedProducer);
+        doReturn(producers).when(this.tested, "getAllServiceProducers");
+
+        // when
+        ServiceProducer actualProducer = this.tested.getServiceProvider(42);
+
+        // then
+        verifyPrivate(this.tested).invoke("getAllServiceProducers");
+        assertThat(actualProducer, sameInstance(expectedProducer));
 	}
 
 	@Test
